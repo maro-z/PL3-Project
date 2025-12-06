@@ -1,6 +1,63 @@
 open System.Text.RegularExpressions
 open System
+open System.Text.RegularExpressions
 
+let splitParagraph (text: string) =
+    Regex.Split(text, @"(\r?\n\s*\r?\n)+")
+    |> Array.map (fun p -> p.Trim())
+    |> Array.filter (fun p -> p <> "")
+    |> Array.toList
+
+
+let splitSentence (text: string) =
+    let abbreviations = @"(?:Mr|Mrs|Ms|Dr|Prof|St|Sr|Jr|vs|etc|p\.m|a\.m|P\.M|A\.M)"
+    let pattern = @"(?<!\b" + abbreviations + @")(?<=[\.!\?])\s+"
+
+    Regex.Split(text, pattern)
+    |> Array.map (fun s -> s.Trim())
+    |> Array.filter (fun s -> s <> "")
+    |> Array.toList
+
+let splitWord (text: string) =
+    let urlEmailPattern = @"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}|https?://\S+"
+
+    let urlEmailMatches = Regex.Matches(text, urlEmailPattern)
+    let urlEmailTokens = 
+        urlEmailMatches 
+        |> Seq.cast<Match>
+        |> Seq.map (fun m -> m.Value)
+
+    let cleaned = Regex.Replace(text, urlEmailPattern, " ")
+
+    let words =
+        Regex.Split(cleaned.ToLower(), @"[^a-z0-9_'\-]+")
+        |> Array.filter (fun w -> w <> "")
+
+    (urlEmailTokens |> Seq.append words)
+    |> Seq.toList
+
+
+let tokenizeAll text =
+        let paragraphs = splitParagraph text
+        let sentences = splitSentence text
+        let words = splitWord text
+        (paragraphs, sentences, words)
+
+
+let paragraphs, sentences, words = tokenizeAll("""First paragraph text here! It has multiple sentences? Yes!!!
+
+
+Second paragraph: includes numbers (123), symbols like email@test.com,  
+and abbreviations such as Dr. John is here at 5 p.m.
+
+
+Third paragraph has tricky words—
+hyphenated-words, snake_case, camelCase, and ellipsis...
+Also "quoted sentences." And a sentence without ending
+""")
+printfn "paragraphs: %A\n" paragraphs
+printfn "sentences: %A\n" sentences
+printfn "words: %A\n" 
 //results data types
 type FleschKincaidDetails = {
     ReadingLevel: string
