@@ -1,6 +1,5 @@
 open System.Text.RegularExpressions
 open System
-open System.Text.RegularExpressions
 
 let splitParagraph (text: string) =
     Regex.Split(text, @"(\r?\n\s*\r?\n)+")
@@ -151,11 +150,6 @@ let ARIScoreLevelDetails (score: int) : ScoreLevelDetails =
         { Age = "N/A";
           GradeLevel = "Invalid Score" }
 
-
-//Dummy data
-let Words : string list = ["Maro";"hi";"entry";"assignment"]
-let Sentences : string list = ["Maro hi";"entry assignment"]
-
 //Average Sentence Length
 let ASL (w:string list)(s:string list) =float w.Length/float s.Length
 
@@ -210,10 +204,10 @@ let ARI (w:string list)(s:string list) = (4.71 * AWL w) + (0.5 * ASL w s) - 21.4
 
 
 //Results 
-let fre = FRE Words Sentences
-let fkgl = FKGL Words Sentences
-let gfi = GFI Words Sentences
-let ari = ARI Words Sentences
+let fre = FRE words sentences
+let fkgl = FKGL words sentences
+let gfi = GFI words sentences
+let ari = ARI words sentences
 let roundedFRE= int (Math.Round(float fre, MidpointRounding.AwayFromZero))
 let roundedFKGL = int (Math.Round(float fkgl, MidpointRounding.AwayFromZero))
 let  roundedGFI = int (Math.Round(float gfi, MidpointRounding.AwayFromZero))
