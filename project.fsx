@@ -1,5 +1,47 @@
 open System.Text.RegularExpressions
 open System
+open System.IO
+open System.Text
+
+let normalizeText (input: string) : string =
+    input.ToLowerInvariant().Trim()
+
+let loadFile (filePath: string) : Result<string, string> =
+    try 
+        let text = File.ReadAllText(filePath, Encoding.UTF8)
+        let cleanedText = normalizeText text
+        
+        if String.IsNullOrWhiteSpace cleanedText then
+            Error (sprintf "ERROR: File (%s) is empty or contains only whitespace." filePath)
+        else
+            Ok cleanedText 
+        
+    with 
+    | :? FileNotFoundException ->
+        Error (sprintf "ERROR: File not found at path: %s" filePath)
+    | :? IOException as ex ->
+        Error (sprintf "ERROR: An I/O error occurred: %s" ex.Message)
+    | :? DecoderFallbackException as ex ->
+        Error (sprintf "ERROR: Encoding validation failed (Invalid UTF-8 sequence). Details: %s" ex.Message)
+    | ex ->
+        Error (sprintf "ERROR: An unexpected error occurred: %s" ex.Message)
+
+let handleManualInput (rawText: string) : Result<string, string> =
+    if String.IsNullOrWhiteSpace rawText then
+        Error "ERROR: Manual input cannot be empty."
+    else
+        Ok (normalizeText rawText)
+
+let printResultTest (name: string) (result: Result<string, string>) =
+    printfn "\n--- TEST CASE: %s ---" name
+    match result with
+    | Ok cleanText -> 
+        printfn "SUCCESS: Input processed successfully."
+        printfn "Cleaned Text Length: %d" cleanText.Length
+        printfn "Starts with: '%s...'" (cleanText.Substring(0, Math.Min(cleanText.Length, 30)))
+    | Error msg -> 
+        printfn "FAILURE: Input processing failed!"
+        printfn "Reason: %s" msg
 
 let splitParagraph (text: string) =
     Regex.Split(text, @"(\r?\n\s*\r?\n)+")
@@ -42,21 +84,6 @@ let tokenizeAll text =
         let words = splitWord text
         (paragraphs, sentences, words)
 
-
-let paragraphs, sentences, words = tokenizeAll("""First paragraph text here! It has multiple sentences? Yes!!!
-
-
-Second paragraph: includes numbers (123), symbols like email@test.com,  
-and abbreviations such as Dr. John is here at 5 p.m.
-
-
-Third paragraph has tricky words—
-hyphenated-words, snake_case, camelCase, and ellipsis...
-Also "quoted sentences." And a sentence without ending
-""")
-printfn "paragraphs: %A\n" paragraphs
-printfn "sentences: %A\n" sentences
-printfn "words: %A\n" 
 //results data types
 type FleschKincaidDetails = {
     ReadingLevel: string
@@ -203,27 +230,44 @@ let GFI (w:string list)(s:string list) = 0.4 * (ASL w s + (ACW w * 100.0) )
 let ARI (w:string list)(s:string list) = (4.71 * AWL w) + (0.5 * ASL w s) - 21.43
 
 
-//Results 
-let fre = FRE words sentences
-let fkgl = FKGL words sentences
-let gfi = GFI words sentences
-let ari = ARI words sentences
-let roundedFRE= int (Math.Round(float fre, MidpointRounding.AwayFromZero))
-let roundedFKGL = int (Math.Round(float fkgl, MidpointRounding.AwayFromZero))
-let  roundedGFI = int (Math.Round(float gfi, MidpointRounding.AwayFromZero))
-let roundedARI = int (Math.Round(float ari, MidpointRounding.AwayFromZero))
-let FKGLresult = getFleschKincaidDetails roundedFKGL
-let ARIresult = ARIScoreLevelDetails roundedARI
+//sample test :(
+let filename = "sample.txt"
+let analysisResult = loadFile filename
 
-//Printing Results
-printfn "Flesh kincaid results"
-printfn "your text score is : %d" roundedFRE
-printfn "your text can be read by grade : %d" roundedFKGL
-printfn "%A" FKGLresult
-printf "\n"
-printfn "the Gunning Fog Index results"
-printfn "your text score is grade: %d" roundedGFI
-printf "\n"
-printfn "the Automated Readability Index results"
-printfn "your text score is grade: %d" roundedARI
-printfn "%A" ARIresult
+match analysisResult with
+| Ok cleanText -> 
+    let paragraphs, sentences, words = tokenizeAll cleanText
+
+    printfn "\n--- Tokenization Results ---"
+    printfn "Paragraph Count: %d" paragraphs.Length
+    printfn "Sentence Count: %d" sentences.Length
+    printfn "Word Count: %d" words.Length
+    printfn "--------------------------"
+
+    let fre = FRE words sentences
+    let fkgl = FKGL words sentences
+    let gfi = GFI words sentences
+    let ari = ARI words sentences
+    let roundedFRE= int (Math.Round(float fre, MidpointRounding.AwayFromZero))
+    let roundedFKGL = int (Math.Round(float fkgl, MidpointRounding.AwayFromZero))
+    let roundedGFI = int (Math.Round(float gfi, MidpointRounding.AwayFromZero))
+    let roundedARI = int (Math.Round(float ari, MidpointRounding.AwayFromZero))
+    let FKGLresult = getFleschKincaidDetails roundedFKGL
+    let ARIresult = ARIScoreLevelDetails roundedARI
+
+    printfn "Flesh kincaid results"
+    printfn "your text score is : %d" roundedFRE
+    printfn "your text can be read by grade : %d" roundedFKGL
+    printfn "%A" FKGLresult
+    printf "\n"
+    printfn "the Gunning Fog Index results"
+    printfn "your text score is grade: %d" roundedGFI
+    printf "\n"
+    printfn "the Automated Readability Index results"
+    printfn "your text score is grade: %d" roundedARI
+    printfn "%A" ARIresult
+
+| Error msg -> 
+    printfn "\n--- Input Processing Failed ---"
+    printfn "Reason: %s" msg
+    
