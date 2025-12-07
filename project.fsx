@@ -177,11 +177,14 @@ let ARIScoreLevelDetails (score: int) : ScoreLevelDetails =
         { Age = "N/A";
           GradeLevel = "Invalid Score" }
 
+
+let safeDiv a b = if b = 0.0 then 0.0 else a / b
+
 //Average Sentence Length
-let ASL (w:string list)(s:string list) =float w.Length/float s.Length
+let ASL (w:string list)(s:string list) = safeDiv (float w.Length) (float s.Length)
 
 //Average Word Length
-let AWL (w:string list) = float (w|>List.map(fun x -> x.Length)|>List.sum) / float w.Length
+let AWL (w:string list) = safeDiv (float (w |> List.map(fun x -> x.Length)|>List.sum)) (float w.Length)
 
 //Syllable counter
 
@@ -194,7 +197,7 @@ let countVowelSequencesRegex (input: string) =
 //second remove the spicial case of the silent e at the end
 let WordSylCount(input:string)=
     let syl = countVowelSequencesRegex(input)
-    if(input.EndsWith('e')) then
+    if(input.EndsWith("e")) then
         if(input.EndsWith("ee")) then syl
         elif(syl>1) then syl-1
         else syl
@@ -204,7 +207,7 @@ let WordSylCount(input:string)=
 let SyllableCount (w:string list) =float (w|>List.map(WordSylCount)|>List.sum)
 
 //Average syllabel per word
-let ASPW (w:string list) = SyllableCount(w) / float w.Length
+let ASPW (w:string list) = safeDiv (SyllableCount(w)) (float w.Length)
 
 //average number of complex words
 let ComplexWordsCount (w:string list) = float (w|>List.map(WordSylCount)|>List.filter(fun x-> x>=3)|>List.length)
@@ -229,6 +232,17 @@ let GFI (w:string list)(s:string list) = 0.4 * (ASL w s + (ACW w * 100.0) )
 //Formula: 4.71 (AWL) + 0.5 (ASL) - 21.43
 let ARI (w:string list)(s:string list) = (4.71 * AWL w) + (0.5 * ASL w s) - 21.43
 
+type WordFrequency = {
+    Word: string
+    Count: int
+}
+
+let getTopTenWordsFrequencies (words: string list) : WordFrequency list =
+    words
+    |> List.countBy id
+    |> List.sortByDescending snd
+    |> List.truncate 10
+    |> List.map (fun (word, count) -> { Word = word; Count = count })
 
 //sample test :(
 let filename = "sample.txt"
@@ -266,6 +280,11 @@ match analysisResult with
     printfn "the Automated Readability Index results"
     printfn "your text score is grade: %d" roundedARI
     printfn "%A" ARIresult
+    printf "\n"
+    let topWords = getTopTenWordsFrequencies words
+    printfn "--- Top 10 Most Frequent Words ---"
+    topWords
+    |> List.iter (fun wf -> printfn "'%-10s' : %d times" wf.Word wf.Count)
 
 | Error msg -> 
     printfn "\n--- Input Processing Failed ---"
