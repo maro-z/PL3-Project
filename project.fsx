@@ -244,49 +244,84 @@ let getTopTenWordsFrequencies (words: string list) : WordFrequency list =
     |> List.truncate 10
     |> List.map (fun (word, count) -> { Word = word; Count = count })
 
-//sample test :(
-let filename = "sample.txt"
-let analysisResult = loadFile filename
+type AnalysisReport = {
+    FRE: int
+    FKGL: int
+    GFI: int
+    ARI: int
+    ParagraphCount : int
+    SentenceCount : int
+    WordCount : int
+    ASL: float
+    AWL: float
+    ASPW: float
+    ACW: float
+    FKGLDetails: FleschKincaidDetails
+    ARIDetails: ScoreLevelDetails
+    TopWords: WordFrequency list
+}
 
-match analysisResult with
-| Ok cleanText -> 
+let saveJsonToFile (filePath: string) (json: string) =
+    try
+        File.WriteAllText(filePath, json)
+        Ok ()
+    with
+    | ex -> Error ex.Message
+
+let generateJsonReport (report: AnalysisReport) : string =
+    let options = JsonSerializerOptions(WriteIndented = true)
+    JsonSerializer.Serialize(report, options)
+
+let analyzeText (cleanText: string) : AnalysisReport =
     let paragraphs, sentences, words = tokenizeAll cleanText
-
-    printfn "\n--- Tokenization Results ---"
-    printfn "Paragraph Count: %d" paragraphs.Length
-    printfn "Sentence Count: %d" sentences.Length
-    printfn "Word Count: %d" words.Length
-    printfn "--------------------------"
 
     let fre = FRE words sentences
     let fkgl = FKGL words sentences
     let gfi = GFI words sentences
     let ari = ARI words sentences
-    let roundedFRE= int (Math.Round(float fre, MidpointRounding.AwayFromZero))
+
+    let roundedFRE = int (Math.Round(float fre, MidpointRounding.AwayFromZero))
     let roundedFKGL = int (Math.Round(float fkgl, MidpointRounding.AwayFromZero))
     let roundedGFI = int (Math.Round(float gfi, MidpointRounding.AwayFromZero))
     let roundedARI = int (Math.Round(float ari, MidpointRounding.AwayFromZero))
+
     let FKGLresult = getFleschKincaidDetails roundedFKGL
     let ARIresult = ARIScoreLevelDetails roundedARI
 
-    printfn "Flesh kincaid results"
-    printfn "your text score is : %d" roundedFRE
-    printfn "your text can be read by grade : %d" roundedFKGL
-    printfn "%A" FKGLresult
-    printf "\n"
-    printfn "the Gunning Fog Index results"
-    printfn "your text score is grade: %d" roundedGFI
-    printf "\n"
-    printfn "the Automated Readability Index results"
-    printfn "your text score is grade: %d" roundedARI
-    printfn "%A" ARIresult
-    printf "\n"
     let topWords = getTopTenWordsFrequencies words
-    printfn "--- Top 10 Most Frequent Words ---"
-    topWords
-    |> List.iter (fun wf -> printfn "'%-10s' : %d times" wf.Word wf.Count)
+
+    {
+        FRE = roundedFRE
+        FKGL = roundedFKGL
+        GFI = roundedGFI
+        ARI = roundedARI
+
+        ParagraphCount = paragraphs.Length
+        SentenceCount = sentences.Length
+        WordCount = words.Length
+
+        ASL = ASL words sentences
+        AWL = AWL words
+        ASPW = ASPW words
+        ACW = ACW words
+
+        FKGLDetails = FKGLresult
+        ARIDetails = ARIresult
+        TopWords = topWords
+    }
+
+//sample test :(
+let filename = "sample.txt"
+
+match loadFile filename with
+| Ok cleanText ->
+    let report = analyzeText cleanText
+    let jsonReport = generateJsonReport report
+
+    match saveJsonToFile "analysis_report.json" jsonReport with
+    | Ok () -> printfn "JSON report saved successfully."
+    | Error err -> printfn "Failed to save JSON: %s" err
 
 | Error msg -> 
     printfn "\n--- Input Processing Failed ---"
     printfn "Reason: %s" msg
-    
