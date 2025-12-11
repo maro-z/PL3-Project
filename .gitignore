@@ -1,0 +1,77 @@
+## Visual Studio ##
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build Results ##
+bin/
+obj/
+[Bb]uild/
+[Dd]ebug*/
+[Rr]elease*/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+[Ww][Ii][Nn]32/
+
+## NuGet ##
+packages/
+*.nupkg
+*.snupkg
+# Keep build deps but remove everything else
+**/packages/*/*
+!**/packages/build/
+!**/packages/repositories.config
+
+## DLLs & EXEs ##
+*.exe
+*.dll
+*.pdb
+*.cache
+*.mdb
+
+## Auto-generated resource folders (.NET satellite assemblies) ##
+cs/
+de/
+es/
+fr/
+it/
+ja/
+ko/
+pl/
+pt-BR/
+ru/
+tr/
+zh-Hans/
+zh-Hant/
+
+## Logs ##
+*.log
+
+## Temp Files ##
+*.tmp
+*.temp
+*.bak
+*.old
+
+## IDE ##
+.idea/
+*.DotSettings.user
+*.vscode/
+
+## F# generated junk ##
+*.fs.js
+*.fsi.js
+
+## Publish ##
+publish/
+app.publish/
+
+## Others ##
+Thumbs.db
+Desktop.ini
+*.db
+*.DS_Store

@@ -2,6 +2,7 @@ open System.Text.RegularExpressions
 open System
 open System.IO
 open System.Text
+open System.Text.Json
 
 let normalizeText (input: string) : string =
     input.ToLowerInvariant().Trim()
