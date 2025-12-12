@@ -5,8 +5,16 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="project.fsx" />
-  </ItemGroup>
+<ItemGroup>
+  <Compile Include="Types.fs" />
+  <Compile Include="Input.fs" />
+  <Compile Include="Tokenizer.fs" />
+  <Compile Include="ScoreTables.fs" />
+  <Compile Include="Metrics.fs" />
+  <Compile Include="Frequency.fs" />
+  <Compile Include="Json.fs" />
+  <Compile Include="Analyzer.fs" />
+  <Compile Include="Program.fsx" />
+</ItemGroup>
 
 </Project>

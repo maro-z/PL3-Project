@@ -1,11 +1,12 @@
 using TextAnalyzer;
 using Microsoft.FSharp.Core;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TextAnalyzerGuI
 {
     public partial class Form1 : Form
     {
-        private TextAnalyzer.TextAnalyzer.AnalysisReport? currentReport = null;
+        private TextAnalyzer.Types.AnalysisReport? currentReport = null;
 
         public Form1()
         {
@@ -26,14 +27,11 @@ namespace TextAnalyzerGuI
                 }
 
                 // Validate and normalize input
-                var validationResult = TextAnalyzer.TextAnalyzer.handleManualInput(inputText);
+                var validationResult = TextAnalyzer.Program.analyzeText(inputText);
 
                 if (validationResult.IsOk)
                 {
-                    var cleanText = validationResult.ResultValue;
-
-                    // Analyze the text
-                    currentReport = TextAnalyzer.TextAnalyzer.analyzeText(cleanText);
+                    currentReport = validationResult.ResultValue;
 
                     // Display results
                     DisplayAnalysisResults(currentReport);
@@ -52,7 +50,7 @@ namespace TextAnalyzerGuI
             }
         }
 
-        private void DisplayAnalysisResults(TextAnalyzer.TextAnalyzer.AnalysisReport report)
+        private void DisplayAnalysisResults(TextAnalyzer.Types.AnalysisReport report)
         {
             // Display statistics
             lblWordCount.Text = $"Word Count: {report.WordCount}";
@@ -88,8 +86,7 @@ namespace TextAnalyzerGuI
 
                     if (saveDialog.ShowDialog() == DialogResult.OK)
                     {
-                        string json = TextAnalyzer.TextAnalyzer.generateJsonReport(currentReport);
-                        var saveResult = TextAnalyzer.TextAnalyzer.saveJsonToFile(saveDialog.FileName, json);
+                        var saveResult = TextAnalyzer.Program.analyzeTextToJson(currentReport, saveDialog.FileName);
 
                         if (saveResult.IsOk)
                         {
@@ -123,7 +120,6 @@ namespace TextAnalyzerGuI
 
                     if (openDialog.ShowDialog() == DialogResult.OK)
                     {
-                        var loadResult = TextAnalyzer.TextAnalyzer.loadFile(openDialog.FileName);
                         var extension = Path.GetExtension(openDialog.FileName);
                         if(extension != ".txt")
                         {
@@ -132,13 +128,12 @@ namespace TextAnalyzerGuI
                             return;
                         }
 
+                        var loadResult = TextAnalyzer.Program.analyzeFile(openDialog.FileName);
+
                         if (loadResult.IsOk)
                         {
-                            var text = loadResult.ResultValue;
-                            txtManualInput.Text = text;
-
-                            // Automatically analyze the loaded text
-                            currentReport = TextAnalyzer.TextAnalyzer.analyzeText(text);
+                            currentReport = loadResult.ResultValue;
+                            txtManualInput.Text = currentReport.Text;
                             DisplayAnalysisResults(currentReport);
                         }
                         else

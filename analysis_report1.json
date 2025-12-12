@@ -1,0 +1,65 @@
+{
+  "FRE": 56,
+  "FKGL": 7,
+  "GFI": 13,
+  "ARI": 8,
+  "ParagraphCount": 3,
+  "SentenceCount": 7,
+  "WordCount": 47,
+  "ASL": 6.714285714285714,
+  "AWL": 5.574468085106383,
+  "ASPW": 1.702127659574468,
+  "ACW": 0.2553191489361702,
+  "FKGLDetails": {
+    "ReadingLevel": "Average",
+    "SchoolLevel": "Middle School",
+    "AgeRange": "11 - 14"
+  },
+  "ARIDetails": {
+    "Age": "13 - 14",
+    "GradeLevel": "Eighth grade"
+  },
+  "TopWords": [
+    {
+      "Word": "paragraph",
+      "Count": 3
+    },
+    {
+      "Word": "and",
+      "Count": 3
+    },
+    {
+      "Word": "here",
+      "Count": 2
+    },
+    {
+      "Word": "has",
+      "Count": 2
+    },
+    {
+      "Word": "sentences",
+      "Count": 2
+    },
+    {
+      "Word": "first",
+      "Count": 1
+    },
+    {
+      "Word": "text",
+      "Count": 1
+    },
+    {
+      "Word": "it",
+      "Count": 1
+    },
+    {
+      "Word": "multiple",
+      "Count": 1
+    },
+    {
+      "Word": "yes",
+      "Count": 1
+    }
+  ],
+  "Text": "first paragraph text here! it has multiple sentences? yes!!!\r\n\r\n\r\nsecond paragraph: includes numbers (123), symbols like email@test.com,  \r\nand abbreviations such as dr. john is here at 5 p.m.\r\n\r\n\r\nthird paragraph has tricky words\u2014\r\nhyphenated-words, snake_case, camelcase, and ellipsis...\r\nalso \u0022quoted sentences.\u0022 and a sentence without ending"
+}
