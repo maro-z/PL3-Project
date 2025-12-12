@@ -315,19 +315,3 @@ module TextAnalyzer =
             ARIDetails = ARIresult
             TopWords = topWords
         }
-
-    ////sample test :(
-    //let filename = "sample.txt"
-
-    //match loadFile filename with
-    //| Ok cleanText ->
-    //    let report = analyzeText cleanText
-    //    let jsonReport = generateJsonReport report
-
-    //    match saveJsonToFile "analysis_report.json" jsonReport with
-    //    | Ok () -> printfn "JSON report saved successfully."
-    //    | Error err -> printfn "Failed to save JSON: %s" err
-
-    //| Error msg -> 
-    //    printfn "\n--- Input Processing Failed ---"
-    //    printfn "Reason: %s" msg
