@@ -11,24 +11,26 @@ module Metrics =
     //Average Word Length
     let AWL (w:string list) = safeDiv (float (w |> List.map(fun x -> x.Length)|>List.sum)) (float w.Length)
 
-    //Syllable counter
 
-    //first count number oof vowels two or more vowels coming after one another are counted as one 
     let countVowelSequencesRegex (input: string) =
         let vowelPattern = "[aeiouy]+"
         Regex.Matches(input, vowelPattern, RegexOptions.IgnoreCase)
         |> fun matches -> matches.Count
 
-    //second remove the spicial case of the silent e at the end
-    let WordSylCount(input:string)=
+    let SpecialWords(input:string)=
         let syl = countVowelSequencesRegex(input)
-        if(input.EndsWith("e")) then
-            if(input.EndsWith("ee")) then syl
-            elif(syl>1) then syl-1
-            else syl
+        if(input.Contains('-')) then syl+1
+        elif (syl = 0) then 1
         else syl
 
-    //finally count the syllabels for each word and sum them to get the final syllabels count
+    let WordSylCount(input:string)=
+        let syl = SpecialWords(input)
+        if not (input.EndsWith("e")) then syl
+        elif(input.EndsWith("ee")) then syl
+        elif(syl>1) then syl-1
+        else syl
+         
+
     let SyllableCount (w:string list) =float (w|>List.map(WordSylCount)|>List.sum)
 
     //Average syllabel per word
@@ -39,7 +41,6 @@ module Metrics =
     let ACW(w: string list) = ComplexWordsCount w / float w.Length
 
 
-    //known metrics for readability
 
     //FRE (Flesch Reading Ease Score)
     //Formula: 206.835 - 1.015(ASL)-84.6(ASPW)
