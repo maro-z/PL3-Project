@@ -13,11 +13,6 @@ module Metrics =
 
 
     let countVowelSequencesRegex (input: string) =
-        let vowelPattern = "[aeiouy]+"
-        Regex.Matches(input, vowelPattern, RegexOptions.IgnoreCase)
-        |> fun matches -> matches.Count
-
-    let countVowelSequencesRegex (input: string) =
         let vowelPattern = "[aeiouy-]+"
         Regex.Matches(input, vowelPattern, RegexOptions.IgnoreCase)
         |> fun matches -> matches.Count
@@ -25,6 +20,13 @@ module Metrics =
     let SpecialWords(input:string)=
         let syl = countVowelSequencesRegex(input)
         if (syl = 0) then 1
+        else syl
+
+    let WordSylCount(input:string)=
+        let syl = SpecialWords(input)
+        if not (input.EndsWith("e")) then syl
+        elif(input.EndsWith("ee")) then syl
+        elif(syl>1) then syl-1
         else syl
 
     let SyllableCount (w:string list) =float (w|>List.map(WordSylCount)|>List.sum)
