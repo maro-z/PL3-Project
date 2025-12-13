@@ -34,4 +34,3 @@ module Program =
         match saveJsonToFile filePath json with
         | Ok () -> Ok json
         | Error e -> Error e
-
